@@ -26,6 +26,9 @@ function Menu:touch(event)
 end
 
 Menu:addEventListener("touch", Menu)
+saveData = saveData .. "Player Has Died "
+
+
 
 -----------------------------------------------------------------------------------------
 --

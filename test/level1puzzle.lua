@@ -18,21 +18,23 @@
 --	1. Requires
 ----------------------------------------------------------------------
 --SCENE TRANSITION METHODS AND EVENT LISTENERS
+print("Level1 Puzzle has been created and added to the scene")
 local composer = require("composer")
+composer.removeScene("level1")
 local scene = composer.newScene()
-composer.hideOverlay()
-Runtime:removeEventListener( "collision", onCollision)
-composer.removeHidden()
 
 
+function scene:create(event)
+local sceneGroup = self.view
 
 local listener = {}
+
 ----------------------------------------------------------------------
 --	2. Initialization
 ----------------------------------------------------------------------
 io.output():setvbuf("no") -- Don't use buffer for console messages
 display.setStatusBar(display.HiddenStatusBar)  -- Hide that pesky bar
-
+s1 = system.getTimer()
 
 
 ----------------------------------------------------------------------
@@ -54,13 +56,13 @@ local puzzlePieces = {}						-- Table used to store the puzzle pieces.
 
 -- Labels, Buttons, Etc
 local gameStatusMsg							-- Empty variable that will be used to store the handle to a text object
-											-- representing the game status message.
+			-- representing the game status message.
 
 local puzzleArea							-- Empty variable that will be used to store the handle to a rectangle.
-											-- This rectangle is the location where the finished puzzle should be placed.
+		-- This rectangle is the location where the finished puzzle should be placed.
 
 local piecesTray							-- Empty variable that will be used to store the handle to a rectangle.
-											-- This rectangle is the location where the puzzle pieces will be placed
+			-- This rectangle is the location where the puzzle pieces will be placed
 											-- at the beginning of the game.  (Temporary place to stack the unused pieces.)
 
 -- Forward Declarations
@@ -91,7 +93,7 @@ drawBoard = function()
 	-- 1. Draw Puzzle (Target) Area -- Place adjacent to the lower-right edge of the screen.
 	--
 	puzzleArea = display.newRect( 0, 0, 300, 240)
-
+	sceneGroup:insert(puzzleArea)
 	-- Tip: When we create a rectangle, we place it by its upper-left corner at <0,0>.
 	--      However, after a rectangle has been created, the refenence point automatically
 	--      changes to its center.
@@ -111,7 +113,7 @@ drawBoard = function()
 	-- 2. Draw Piece Tray -- Take up most of the left side of the screen.
 	--
 	piecesTray = display.newRect( 0, 0, 140, 140)
-
+	sceneGroup:insert(piecesTray)
 	-- Same tip as above on creation, then placement.
 	--
 	piecesTray.x = 150
@@ -127,7 +129,7 @@ drawBoard = function()
 	-- 3. Make Game Status Indicator
 	--
 	gameStatusMsg = display.newEmbossedText( "Puzzle Solved!", 0, 0, native.systemFont, 36 )
-
+	sceneGroup:insert(gameStatusMsg)
 	gameStatusMsg.x = puzzleArea.x
 	gameStatusMsg.y = 120
 
@@ -266,10 +268,19 @@ placePieces = function()
 		--
 		puzzlePieces[#puzzlePieces+1] = tmp
 
+
+
+
 		end
+
 	end
 
+		sceneGroup:insert(puzzlePieces[1])
+		sceneGroup:insert(puzzlePieces[2])
+		sceneGroup:insert(puzzlePieces[3])
+		sceneGroup:insert(puzzlePieces[4])
 end
+
 
 -- ==
 --    movePiecesToTray() - This function moves the tile pieces created in 'placePieces()' over
@@ -549,6 +560,26 @@ onPuzzlePieceTouch = function( event )
 			-- Yay! Show the "Solved!" message
 			--
 			gameStatusMsg.isVisible = true
+
+      f1 = system.getTimer()
+      t1 = f1-s1
+      t1 = t1/1000
+      -- Path for the file to write
+      local path = system.pathForFile( "p1Time.txt", system.DocumentsDirectory )
+
+      -- Open the file handle
+      local file, errorString = io.open( path, "w" )
+
+      if not file then
+          -- Error occurred; output the cause
+          print( "File error: " .. errorString )
+      else
+          -- Write data to file
+          file:write( t1 )
+          -- Close the file handle
+          io.close( file )
+      end
+
       timer.performWithDelay( 3000, listener )
 
 
@@ -563,7 +594,7 @@ end
 function listener:timer( event )
     print( "listener called" )
     local scene = composer.gotoScene("level2")
-    composer.removeHidden()
+
 end
 
 
@@ -575,5 +606,51 @@ end
 drawBoard()
 placePieces()
 movePiecesToTray()
+end
+
+function scene:show( event )
+
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if ( phase == "will" ) then
+        -- Code here runs when the scene is still off screen (but is about to come on screen)
+
+    elseif ( phase == "did" ) then
+        -- Code here runs when the scene is entirely on screen
+
+    end
+end
+
+
+function scene:hide( event )
+
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if ( phase == "will" ) then
+        -- Code here runs when the scene is on screen (but is about to go off screen)
+
+    elseif ( phase == "did" ) then
+        -- Code here runs immediately after the scene goes entirely off screen
+        composer.removeHidden()
+    end
+end
+
+
+function scene:destroy( event )
+    local sceneGroup = self.view
+end
+
+
+-- -----------------------------------------------------------------------------------
+-- Scene event function listeners
+-- -----------------------------------------------------------------------------------
+scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
+-- -----------------------------------------------------------------------------------
+
 
 return scene

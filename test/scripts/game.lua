@@ -1,8 +1,10 @@
 -- =============================================================
--- Copyright Roaming Gamer, LLC. 2009-2015 
+-- Copyright Roaming Gamer, LLC. 2009-2015
 -- =============================================================
--- 
+--
 -- =============================================================
+
+
 local public = {}
 
 ----------------------------------------------------------------------
@@ -20,8 +22,8 @@ local cards = {}
 
 local duration = 60
 
-local rows = 4 
-local cols = 3 
+local rows = 4
+local cols = 3
 
 local cardWidth 	= w/cols
 local cardHeight 	= cardWidth
@@ -49,31 +51,33 @@ local pairs             = pairs
 --								DEFINITIONS							--
 ----------------------------------------------------------------------
 -- Initialize Game
-function public.create( parent )	
+function public.create( parent )
 	parent = parent or display.currentStage
 
 	-- Initialize key game variables
 	--
 	flipCount = 0
-	currentCards = {}	
+	currentCards = {}
 	cards = {}
 
 	-- Create rendering layers for our game
 	--
-	layers = ssk.display.quickLayers( parent, "underlay", "content",  "overlay" )		
+	layers = ssk.display.quickLayers( parent, "underlay", "content",  "overlay" )
 
 	-- Create the rest of our game parts.
 	--
-	public.drawBoard()	
-	hudsM.create( layers, duration )	
+	public.drawBoard()
+	hudsM.create( layers, duration )
+
+	s = system.getTimer()
 end
 
 
 -- Stop and Destroy The Game
-function public.destroy( path )	
+function public.destroy( path )
 	hudsM.destroy( )
 	display.remove(layers)
-	layers = nil	
+	layers = nil
 end
 
 
@@ -88,8 +92,8 @@ function public.drawBoard()
 
 	-- Generate a list of card numbers then 'shuffle' it
 	local count = 1
-	local cardNumbers = {}	
-	for i = 1, (rows * cols)/2 do		
+	local cardNumbers = {}
+	for i = 1, (rows * cols)/2 do
 		cardNumbers[#cardNumbers+1] = count
 		cardNumbers[#cardNumbers+1] = count
 		count = count + 1
@@ -98,19 +102,19 @@ function public.drawBoard()
 	-- Randomize (shuffle) the numbers list
 	--
 	table.shuffle( cardNumbers, 100 )
-	
-	-- Create and lay out the cards 
+
+	-- Create and lay out the cards
 	--
 	local count = 1
 	for i = 1, cols do
-		for j = 1, rows do				
-			local card = cardM.create( layers.content, 
-				                       startX + (i-1) * cardWidth, 
-						               startY + (j-1) * cardHeight, 
-				                       cardWidth - 6, cardHeight - 6, 
+		for j = 1, rows do
+			local card = cardM.create( layers.content,
+				                       startX + (i-1) * cardWidth,
+						               startY + (j-1) * cardHeight,
+				                       cardWidth - 6, cardHeight - 6,
 				                       cardNumbers[count],
 				                       images )
-			cards[card] = card	
+			cards[card] = card
 			count = count+1
 		end
 	end
@@ -121,7 +125,7 @@ end
 
 -- Listen For Card Flips - onFlippedCard()
 --
-function public.onFlippedCard(event)	
+function public.onFlippedCard(event)
 	flipCount = flipCount + 1
 	currentCards[flipCount] = event.card
 
@@ -153,24 +157,24 @@ function public.onFlippedCard(event)
 			local card1 = currentCards[1]
 			local card2 = currentCards[2]
 
-			timer.performWithDelay( 500, 
+			timer.performWithDelay( 500,
 				function()
 					-- Since we waited, do simple check to be sure
 					-- the objects are still valid (not already removed).
 					--
 					if( not card1 or card1.removeSelf == nil or
-					    not card2 or card2.removeSelf == nil ) then 
+					    not card2 or card2.removeSelf == nil ) then
 					    print("One of the cards was removed before it was time to flip.")
 					    return
 					end
 
 					card1:flip(true)
-					card2:flip(true)					
+					card2:flip(true)
 				end )
 		end
 		currentCards = {}
 		flipCount = 0
-	end	
+	end
 end
 listen( "onFlippedCard", public.onFlippedCard )
 
@@ -183,18 +187,76 @@ local function onGameOver( event )
 	local tmp = display.newRect( layers.overlay, centerX, centerY, fullw, fullh )
 	tmp.isHitTestable = true
 	tmp.alpha = 0.5
-	
+
 	-- Win or lose?
 	--
 	if( table.count(cards) == 0 ) then
 		tmp:setFillColor(0,1,0)
 		post( "onSFX", { sfx = "win" } )
-	
+		_G.win=true
+
+
+		saveData = saveData .. "Game has been now been completed "
+
+		local time = system.getTimer()
+		local f = time - s
+		f = f/1000
+		time = time/1000
+
+		-- Path for the file to write
+		local path = system.pathForFile( "totalTime.txt", system.DocumentsDirectory )
+
+		-- Open the file handle
+		local file, errorString = io.open( path, "w" )
+
+		if not file then
+		    -- Error occurred; output the cause
+		    print( "File error: " .. errorString )
+		else
+		    -- Write data to file
+		    file:write( time )
+		    -- Close the file handle
+		    io.close( file )
+		end
+
+		-- Path for the file to write
+		local path = system.pathForFile( "p2Time.txt", system.DocumentsDirectory )
+
+		-- Open the file handle
+		local file, errorString = io.open( path, "w" )
+
+		if not file then
+		    -- Error occurred; output the cause
+		    print( "File error: " .. errorString )
+		else
+		    -- Write data to file
+		    file:write( f )
+		    -- Close the file handle
+		    io.close( file )
+		end
+
+		-- Path for the file to write
+		local path = system.pathForFile( "Completed.txt", system.DocumentsDirectory )
+
+		-- Open the file handle
+		local file, errorString = io.open( path, "w" )
+
+		if not file then
+		    -- Error occurred; output the cause
+		    print( "File error: " .. errorString )
+		else
+		    -- Write data to file
+		    file:write( saveData )
+		    -- Close the file handle
+		    io.close( file )
+		end
+
+
 	else
 		tmp:setFillColor(1,0,0)
 		post( "onSFX", { sfx = "lose" } )
 	end
-	
+
 	-- Block all touches
 	--
 	tmp.touch = function() return true end

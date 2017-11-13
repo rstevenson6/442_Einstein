@@ -6,21 +6,15 @@
 
 --SCENE EVENT FUNCTIONS
 
-
+print("level1 has been created and added to the scene")
 local composer = require("composer")
+composer.removeScene("Instructions")
 local scene = composer.newScene()
 
 
 ---Test removal of previous scene
-function scene:createScene(event)
-print("blah")
+function scene:create(event)
 local sceneGroup = self.view
-end
-
-scene:createScene(scene)
-display.setStatusBar(display.HiddenStatusBar)
-local group = display.newGroup()
-
 
 
 
@@ -28,24 +22,19 @@ local group = display.newGroup()
 local background = display.newImageRect("preview1.png", 340, 600)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
+sceneGroup:insert(background)
 
 
 
 local chest = display.newImageRect("Chest.png", 20, 20)
 chest.x = display.contentCenterX-5
 chest.y = display.contentCenterY-75
-chest.myName = "chest"
+sceneGroup:insert(chest)
 
 
-
-local player = display.newImageRect("player.png", 30, 30)
+player = display.newImageRect("player.png", 30, 30)
 player.x = display.contentCenterX
 player.y = display.contentCenterY
-player.myName = "player"
-
-
-
-
 
 
 --PLAYER PHYSICS
@@ -66,8 +55,10 @@ physics.addBody(chest, "static",{ radius=10, bounce=0.1 } )
 local function onCollision(event)
 	if(event.phase == "began") then
 	print("began")
-	composer.gotoScene("scene2")
-  
+	event.phase="ended"
+	Runtime:removeEventListener("collision", onCollision)
+	composer.gotoScene("level1puzzle")
+	event.phase="ended"
 	elseif (event.phase == "ended") then
 	print("ended")
 	end
@@ -78,25 +69,28 @@ Runtime:addEventListener("collision", onCollision)
  local left = display.newImageRect("arrowleft.png",20,20)
  left.x = 100; left.y = 345;
  left:setFillColor(blue)
-
+sceneGroup:insert(left)
 -- Add right joystick button
  local right = display.newImageRect("arrowright.png",20,20)
  right.x = _W - 100; right.y = 345;
-
+sceneGroup:insert(right)
  --Add back joystick button
  local back = display.newImageRect("arrowdown.png",20,20)
  back.y = 400; back.x = display.contentCenterX
  back:setFillColor(white)
+ sceneGroup:insert(back)
  --Add forward joystick button
  local forward = display.newImageRect("arrowup.png",20,20)
  forward.y = 300; forward.x = display.contentCenterX
  forward:setFillColor(gray)
+ sceneGroup:insert(forward)
 
 
 
  -- When left arrow is touched, move character left
  function left:touch()
  motionx = -speed;
+ print(motionx)
  end
  left:addEventListener("touch",left)
 -- When right arrow is touched, move character right
@@ -131,15 +125,10 @@ end
  Runtime:addEventListener("enterFrame", movePlayer)
 
 
-
- --SCENE EVENT FUNCTIONS
-
- --create scene
-function scene:create(event)
-	local sceneGroup = self.view
 end
 
---show scene
+
+
 function scene:show(event)
 	local sceneGroup = self.view
 	local phase = event.phase
@@ -150,7 +139,7 @@ function scene:show(event)
 	--TO RUN IF THE SCENE IS ALREADY ON THE SCREEN
 	end
 end
---hide the scene
+
 function scene:hide( event )
 
     local sceneGroup = self.view
@@ -164,12 +153,14 @@ function scene:hide( event )
     end
 end
 
-
--- destroy()
 function scene:destroy( event )
     local sceneGroup = self.view
+	Runtime:removeEventListener("collision", onCollision)
     -- Code here runs prior to the removal of scene's view
 end
 
 scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
 return scene

@@ -8,28 +8,22 @@
 
 
 local composer = require("composer")
+player.x = 100000
 local scene = composer.newScene()
+print("level 2 puzzle has been created")
 
 
 
 
-function scene:createScene(event)
-print("blah")
+function scene:create(event)
+print("createscene method called")
 local sceneGroup = self.view
-end
-
-scene:createScene(scene)
-display.setStatusBar(display.HiddenStatusBar)
-local group = display.newGroup()
-
-
-
-
-
--- LEVEL BACKGROUND
+	-- LEVEL BACKGROUND
 local background = display.newImageRect("preview0.png", 340, 600)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
+sceneGroup:insert(background)
+
 
 
 
@@ -37,6 +31,7 @@ local chest = display.newImageRect("Chest.png", 20, 20)
 chest.x = display.contentCenterX-5
 chest.y = display.contentCenterY-75
 chest.myName = "chest"
+sceneGroup:insert(chest)
 
 
 
@@ -65,7 +60,7 @@ player.gravityScale = 0
 physics.addBody(chest, "static",{ radius=10, bounce=0.1 } )
 
 --Check for collision
-local function onCollision(event)
+local function onCollision2(event)
 if(event.phase == "began") then
   print("began")
   composer.gotoScene("level2puzzle")
@@ -76,45 +71,53 @@ if(event.phase == "began") then
 end
 end
 
-Runtime:addEventListener("collision", onCollision)
+Runtime:addEventListener("collision", onCollision2)
 -- Add left joystick button
  local left = display.newImageRect("arrowleft.png",20,20)
  left.x = 100; left.y = 345;
  left:setFillColor(blue)
-
+sceneGroup:insert(left)
 -- Add right joystick button
  local right = display.newImageRect("arrowright.png",20,20)
  right.x = _W - 100; right.y = 345;
-
+sceneGroup:insert(right)
  --Add back joystick button
  local back = display.newImageRect("arrowdown.png",20,20)
  back.y = 400; back.x = display.contentCenterX
  back:setFillColor(white)
+ sceneGroup:insert(back)
  --Add forward joystick button
  local forward = display.newImageRect("arrowup.png",20,20)
  forward.y = 300; forward.x = display.contentCenterX
  forward:setFillColor(gray)
+ sceneGroup:insert(forward)
 
 
 
  -- When left arrow is touched, move character left
  function left:touch()
+ print("left button pressed")
  motionx = -speed;
+  player.x = player.x + motionx;
+ print(motionx)
  end
  left:addEventListener("touch",left)
 -- When right arrow is touched, move character right
  function right:touch()
  motionx = speed;
+  player.x = player.x + motionx;
  end
  right:addEventListener("touch",right)
  --When back arrow is touched, move character backwards
  function back:touch()
  motiony = speed;
+   player.y = player.y + motiony;
  end
  back:addEventListener("touch", back)
  --When forward arrow is touched move character forwards
  function forward:touch()
  motiony = -speed;
+   player.y = player.y + motiony;
  end
 forward:addEventListener("touch", forward)
 
@@ -122,26 +125,30 @@ forward:addEventListener("touch", forward)
 
 
 
-  local function movePlayer (event)
+  local function movePlayer2 (event)
  player.x = player.x + motionx;
  player.y = player.y + motiony;
 motionx = 0;
 motiony = 0;
-
-
-
---end
 end
- Runtime:addEventListener("enterFrame", movePlayer)
+
+ Runtime:addEventListener("enterFrame", movePlayer2)
+
+	
+end
+
+
+
+
+
+
+
+
+
 
 
 
  --SCENE EVENT FUNCTIONS
-
- --create scene
-function scene:create(event)
-	local sceneGroup = self.view
-end
 
 --show scene
 function scene:show(event)
@@ -176,4 +183,7 @@ function scene:destroy( event )
 end
 
 scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
 return scene

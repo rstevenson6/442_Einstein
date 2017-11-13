@@ -3,15 +3,37 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
-
+print("Main Screen has Run")
 audio.setMaxVolume( .5, { channel=1 } )
 local backgroundMusic = audio.loadSound( "CAS_theme.wav" )
 local backgroundMusicChannel = audio.play( backgroundMusic, { channel=1, loops=-1 } )
 
-
-
+local options={effect="crossFade", time = 3000}
+display.setStatusBar( display.HiddenStatusBar )
 local composer = require( "composer" )
-local scene = composer.gotoScene("Title")
+local scene = composer.gotoScene("Title", options)
+
+-- Path for the file to read
+local path = system.pathForFile( "testing.txt", system.DocumentsDirectory )
+
+-- Open the file handle
+local file, errorString = io.open( path, "r" )
+
+if not file then
+    -- Error occurred; output the cause
+    print( "File error: " .. errorString )
+else
+    -- Read data from file
+    local contents = file:read( "*a" )
+    -- Output the file contents
+    print( "Contents of " .. path .. "\n" .. contents )
+    -- Close the file handle
+    io.close( file )
+end
+
+file = nil
+
+saveData = " "
 
 -----------------------------------------------------------------------------------------
 --
@@ -23,75 +45,6 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
--- -----------------------------------------------------------------------------------
--- Code outside of the scene event functions below will only be executed ONCE unless
--- the scene is removed entirely (not recycled) via "composer.removeScene()"
--- -----------------------------------------------------------------------------------
 
-
-
-
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
-
--- create()
-function scene:create( event )
-
-    local sceneGroup = self.view
-    -- Code here runs when the scene is first created but has not yet appeared on screen
-
-end
-
-
--- show()
-function scene:show( event )
-
-    local sceneGroup = self.view
-    local phase = event.phase
-
-    if ( phase == "will" ) then
-        -- Code here runs when the scene is still off screen (but is about to come on screen)
-
-    elseif ( phase == "did" ) then
-        -- Code here runs when the scene is entirely on screen
-
-    end
-end
-
-
--- hide()
-function scene:hide( event )
-
-    local sceneGroup = self.view
-    local phase = event.phase
-
-    if ( phase == "will" ) then
-        -- Code here runs when the scene is on screen (but is about to go off screen)
-
-    elseif ( phase == "did" ) then
-        -- Code here runs immediately after the scene goes entirely off screen
-
-    end
-end
-
-
--- destroy()
-function scene:destroy( event )
-
-    local sceneGroup = self.view
-    -- Code here runs prior to the removal of scene's view
-
-end
-
-
--- -----------------------------------------------------------------------------------
--- Scene event function listeners
--- -----------------------------------------------------------------------------------
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
--- -----------------------------------------------------------------------------------
 
 return scene
