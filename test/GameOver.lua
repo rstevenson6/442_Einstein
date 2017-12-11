@@ -8,18 +8,24 @@
 
 
 local composer = require( "composer" )
+local scene = composer.newScene()
+
+function scene:create(event)
+local sceneGroup = self.view
 
 local myText = display.newText( "Game Over", 160, 135, "Matura MT Script Capitals", 40 )
+sceneGroup:insert(myText)
 
 local Menu = display.newRect(160,355,180,40)
+sceneGroup:insert(Menu)
 Menu.alpha=0.01;
-local myText = display.newText( "Main Menu", 160, 357, "Matura MT Script Capitals", 40 )
-
+local myText2 = display.newText( "Exit Game", 160, 357, "Matura MT Script Capitals", 40 )
+sceneGroup:insert(myText2)
 
 function Menu:touch(event)
 --transition
   if event.phase == "began" then
-  local scene = composer.gotoScene("Title")
+  native.requestExit()
   return true
   end
 
@@ -28,37 +34,10 @@ end
 Menu:addEventListener("touch", Menu)
 saveData = saveData .. "Player Has Died "
 
-
-
------------------------------------------------------------------------------------------
---
--- Scene_Template.lua
---
------------------------------------------------------------------------------------------
-
-local composer = require( "composer" )
-
-local scene = composer.newScene()
-
--- -----------------------------------------------------------------------------------
--- Code outside of the scene event functions below will only be executed ONCE unless
--- the scene is removed entirely (not recycled) via "composer.removeScene()"
--- -----------------------------------------------------------------------------------
-
-
-
-
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
-
--- create()
-function scene:create( event )
-
-    local sceneGroup = self.view
-    -- Code here runs when the scene is first created but has not yet appeared on screen
-
 end
+
+
+
 
 
 -- show()

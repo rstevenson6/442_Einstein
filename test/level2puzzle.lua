@@ -20,16 +20,7 @@ io.output():setvbuf("no") -- Don't use buffer for console messages
 soundM.init()
 game.create()
 
-print(_G.win)
 
---local function onGameWin(event)
---print(_G.win)
---if(_G.win==false) then
---Runtime:removeEventListener("enterFrame", onGameWin)
---composer.gotoScene("Title")
---end
---end
---Runtime:addEventListener("enterFrame", onGameWin)
 
 
 

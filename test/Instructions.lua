@@ -43,17 +43,41 @@ sceneGroup:insert(myText8)
 
 
 
-local nextText = display.newText( "Next", 160, 507, "Matura MT Script Capitals", 20 )
-sceneGroup:insert(nextText)
-local next = display.newRect(160,500,180,40)
-next.alpha=0.01;
-sceneGroup:insert(next)
+local easy = display.newText( "Easy", 160, 407, "Matura MT Script Capitals", 20 )
+sceneGroup:insert(easy)
+local easy1 = display.newRect(160,400,180,40)
+easy1.alpha=0.01;
+sceneGroup:insert(easy1)
 
-function next:touch(event)
-  local scene = composer.gotoScene("level1")
+local medium = display.newText( "Medium", 160, 457, "Matura MT Script Capitals", 20 )
+sceneGroup:insert(medium)
+local medium1 = display.newRect(160,450,180,40)
+medium1.alpha=0.01;
+sceneGroup:insert(medium1)
+
+local hard = display.newText( "Hard", 160, 507, "Matura MT Script Capitals", 20 )
+sceneGroup:insert(hard)
+local hard1 = display.newRect(160,500,180,40)
+hard1.alpha=0.01;
+sceneGroup:insert(hard1)
+
+difficultyVar = 0
+function easy1:touch(event)
+  difficultyVar = 0
+  local scene = composer.gotoScene("level1a")
+end
+function medium1:touch(event)
+  difficultyVar = 1
+  local scene = composer.gotoScene("level1b")
+end
+function hard1:touch(event)
+  difficultyVar = 2
+  local scene = composer.gotoScene("level1c")
 end
 
-next:addEventListener("touch", next)
+easy1:addEventListener("touch", easy1)
+medium1:addEventListener("touch", medium1)
+hard1:addEventListener("touch", hard1)
 
 
 end

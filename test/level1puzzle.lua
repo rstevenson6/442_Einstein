@@ -47,7 +47,7 @@ local w       = display.contentWidth		-- Design width, height, and center <x,y> 
 local h       = display.contentHeight
 local centerX = display.contentWidth/2
 local centerY = display.contentHeight/2
-
+local done = 0
 											-- Choose one of two pre-defined puzzle piece sets
 local puzzleName = "starrynight"
 --local puzzleName = "dogs"
@@ -579,7 +579,7 @@ onPuzzlePieceTouch = function( event )
           -- Close the file handle
           io.close( file )
       end
-
+      done =1
       timer.performWithDelay( 3000, listener )
 
 
@@ -593,9 +593,49 @@ end
 
 function listener:timer( event )
     print( "listener called" )
-    local scene = composer.gotoScene("level2")
-
+    if(difficultyVar ==0) then
+    local scene = composer.gotoScene("level2a")
+    elseif(difficultyVar ==1 ) then
+    local scene = composer.gotoScene("level2b")
+    else
+    local scene = composer.gotoScene("level2c")
+    end
 end
+
+local secondsLeft = ""
+if(difficultyVar ==0) then
+  secondsLeft =20
+  end
+if(difficultyVar ==1) then
+  secondsLeft = 15
+  end
+if(difficultyVar ==2) then
+  secondsLeft = 10
+  end
+
+local clockText = display.newText(secondsLeft, display.contentCenterX, 450, native.systemFontBold, 80)
+clockText:setFillColor( 0.7, 0.7, 1 )
+sceneGroup:insert(clockText)
+
+local function updateTime()
+	-- decrement the number of seconds
+	secondsLeft = secondsLeft - 1
+
+	-- time is tracked in seconds.  We need to convert it to minutes and seconds
+
+	local seconds = secondsLeft
+	if(seconds == 00 and done ==0) then
+
+	composer.gotoScene("GameOver")
+	end
+	-- make it a string using string format.
+	local timeDisplay = string.format( "%02d", seconds )
+	clockText.text = timeDisplay
+end
+
+-- run them timer
+local countDownTimer = timer.performWithDelay( 1000, updateTime, -1)
+
 
 
 

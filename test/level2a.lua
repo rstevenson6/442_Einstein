@@ -6,35 +6,50 @@
 
 --SCENE EVENT FUNCTIONS
 
-print("level1 has been created and added to the scene")
+
 local composer = require("composer")
-composer.removeScene("Instructions")
+player.x = 100000
 local scene = composer.newScene()
+print("level 2 puzzle has been created")
 
+fps1 = 0
+done2 =0
+local flip1 =0
 
----Test removal of previous scene
 function scene:create(event)
+print("createscene method called")
 local sceneGroup = self.view
-
-
-
--- LEVEL BACKGROUND
-local background = display.newImageRect("preview1.png", 340, 600)
+	-- LEVEL BACKGROUND
+local background = display.newImageRect("preview0.png", 340, 600)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 sceneGroup:insert(background)
 
 
 
+
 local chest = display.newImageRect("Chest.png", 20, 20)
 chest.x = display.contentCenterX-5
 chest.y = display.contentCenterY-75
+chest.myName = "chest"
 sceneGroup:insert(chest)
 
 
-player = display.newImageRect("player.png", 30, 30)
-player.x = display.contentCenterX
-player.y = display.contentCenterY
+
+local player = display.newImageRect("player.png", 30, 30)
+player.x = display.contentCenterX -75
+player.y = display.contentCenterY +200
+player.myName = "player"
+
+local skelly = display.newImageRect("glowing skeleton.png", 60, 30)
+skelly.x = 150
+skelly.y = 380
+sceneGroup:insert(skelly)
+skelly.myName = "skelly"
+
+
+
+
 
 
 --PLAYER PHYSICS
@@ -51,20 +66,38 @@ physics.addBody(player, "dynamic", {friction = 0, bounce=0})
 player.gravityScale = 0
 physics.addBody(chest, "static",{ radius=10, bounce=0.1 } )
 
---Check for collision
-local function onCollision(event)
-	if(event.phase == "began") then
-	print("began")
-	event.phase="ended"
-	Runtime:removeEventListener("collision", onCollision)
-	composer.gotoScene("level1puzzle")
-	event.phase="ended"
-	elseif (event.phase == "ended") then
-	print("ended")
-	end
-end
+-- ADD IF STATEMENTS
 
-Runtime:addEventListener("collision", onCollision)
+physics.addBody(skelly, "dynamic", {friction = 0, bounce=1, radius = 1})
+skelly.gravityScale = 0
+
+
+
+ --Check for collision
+ local function onCollision2(event)
+ 	if(event.phase == "began") then
+ 	if(event.object1.myName =="player" and event.object2.myName=="chest") then
+ 	print(event.object1.myName)
+ 	print(event.object2.myName)
+ 	print("began")
+ 	event.phase="ended"
+ 	Runtime:removeEventListener("collision", onCollision2)
+  done2 =1
+ 	composer.gotoScene("level2puzzle")
+ 	event.phase="ended"
+ 	elseif (event.object1.myName=="player" and event.object2.myName=="skelly") then
+  done2 =1
+   composer.gotoScene("GameOver")
+   event.phase="ended"
+   end
+
+ 	elseif (event.phase == "ended") then
+ 	print("ended")
+ 	end
+ end
+
+
+Runtime:addEventListener("collision", onCollision2)
 -- Add left joystick button
  local left = display.newImageRect("arrowleft.png",20,20)
  left.x = 100; left.y = 345;
@@ -89,46 +122,82 @@ sceneGroup:insert(right)
 
  -- When left arrow is touched, move character left
  function left:touch()
+ print("left button pressed")
  motionx = -speed;
+  player.x = player.x + motionx;
  print(motionx)
  end
  left:addEventListener("touch",left)
 -- When right arrow is touched, move character right
  function right:touch()
  motionx = speed;
+  player.x = player.x + motionx;
  end
  right:addEventListener("touch",right)
  --When back arrow is touched, move character backwards
  function back:touch()
  motiony = speed;
+   player.y = player.y + motiony;
  end
  back:addEventListener("touch", back)
  --When forward arrow is touched move character forwards
  function forward:touch()
  motiony = -speed;
+   player.y = player.y + motiony;
  end
 forward:addEventListener("touch", forward)
 
+--function forward:touch()
 
 
 
-  local function movePlayer (event)
+  local function movePlayer2 (event)
  player.x = player.x + motionx;
  player.y = player.y + motiony;
 motionx = 0;
 motiony = 0;
---Detect for player in range of chest
-
---composer.gotoScene("scene2")
---end
-end
- Runtime:addEventListener("enterFrame", movePlayer)
-
-
 end
 
+local function MoveSkelly( event )
+  if(done2 ==0) then
+      fps = fps +6;
+      if(fps ==60 and flip1 ==0) then
+        skelly.y = skelly.y + 5;
+        fps =0
+
+      elseif(fps==60 and flip1==1) then
+        skelly.y = skelly.y -5;
+        fps =0
+  
+      end
+      if(skelly.y>500) then
+        flip1 = 1
+      end
+      if(skelly.y<380) then
+        flip1 = 0
+        end
+  end
+end
+
+ Runtime:addEventListener("enterFrame", movePlayer2)
+ Runtime:addEventListener("enterFrame", MoveSkelly)
+
+end
 
 
+
+
+
+
+
+
+
+
+
+
+ --SCENE EVENT FUNCTIONS
+
+--show scene
 function scene:show(event)
 	local sceneGroup = self.view
 	local phase = event.phase
@@ -139,7 +208,7 @@ function scene:show(event)
 	--TO RUN IF THE SCENE IS ALREADY ON THE SCREEN
 	end
 end
-
+--hide the scene
 function scene:hide( event )
 
     local sceneGroup = self.view
@@ -153,9 +222,10 @@ function scene:hide( event )
     end
 end
 
+
+-- destroy()
 function scene:destroy( event )
     local sceneGroup = self.view
-	Runtime:removeEventListener("collision", onCollision)
     -- Code here runs prior to the removal of scene's view
 end
 

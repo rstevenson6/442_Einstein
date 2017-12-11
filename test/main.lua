@@ -4,7 +4,7 @@
 --
 -----------------------------------------------------------------------------------------
 print("Main Screen has Run")
-audio.setMaxVolume( .5, { channel=1 } )
+audio.setMaxVolume( 0.3, { channel=1 } )
 local backgroundMusic = audio.loadSound( "CAS_theme.wav" )
 local backgroundMusicChannel = audio.play( backgroundMusic, { channel=1, loops=-1 } )
 
